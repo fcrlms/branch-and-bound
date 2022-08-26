@@ -23,10 +23,9 @@
  ********************************************************************
  ********************************************************************/
 
-
 #include <stdio.h>
 #include <stdlib.h>
-#include "hungarian.h"
+#include "hungarian.hpp"
 #include "data.hpp"
 
 #define INF (0x7FFFFFFF)
