@@ -36,7 +36,6 @@ extern "C" {
 #define HUNGARIAN_MODE_MINIMIZE_COST   0
 #define HUNGARIAN_MODE_MAXIMIZE_UTIL 1
 
-
 typedef struct {
   int num_rows;
   int num_cols;
@@ -48,16 +47,16 @@ typedef struct {
  *  the  cost matrices (missing lines or columns are filled with 0).
  *  It returns the size of the quadratic(!) assignment matrix. **/
 int hungarian_init(hungarian_problem_t* p,
-		   int** cost_matrix,
-		   int rows,
-		   int cols,
-		   int mode);
+       double** cost_matrix,
+       int rows,
+       int cols,
+       int mode);
 
 /** Free the memory allocated by init. **/
 void hungarian_free(hungarian_problem_t* p);
 
 /** This method computes the optimal assignment. **/
-void hungarian_solve(hungarian_problem_t* p);
+int hungarian_solve(hungarian_problem_t* p);
 
 /** Print the computed optimal assignment. **/
 void hungarian_print_assignment(hungarian_problem_t* p);
@@ -73,4 +72,3 @@ void hungarian_print_status(hungarian_problem_t* p);
 #endif
 
 #endif
-
