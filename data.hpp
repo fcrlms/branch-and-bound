@@ -1,13 +1,15 @@
 #ifndef DATA_H
 #define DATA_H
 
-#define INFINITE 99999999
-
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <vector>
+#include <cmath>
 #include <math.h>
 using namespace std;
+
+#define INFINITE 99999999
 
 class Data{
 public:

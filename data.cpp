@@ -1,10 +1,11 @@
+#include <vector>
 #include "data.hpp"
 
 //Inicializador
 Data::Data( int qtParam, char * instance ):
+distMatrix(NULL),
 xCoord(NULL),
-yCoord(NULL),
-distMatrix(NULL){
+yCoord(NULL){
 
 	if ( qtParam < 2 )  {
 		cout << "Missing parameters\n";
