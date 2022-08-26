@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "hungarian.h"
-#include "data.h"
+#include "data.hpp"
 
 #define INF (0x7FFFFFFF)
 #define verbose (0)
