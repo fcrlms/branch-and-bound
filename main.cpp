@@ -1,10 +1,29 @@
 #include <iostream>
-#include <cstdlib>
-#include <cmath>
-#include <vector>
-#include <list>
+#include <cstdlib> // exit()
+#include <cmath> // INFINITY
+#include <vector> // vector
+#include <list> // list
+#include <utility> // pair
 #include "data.hpp"
 #include "hungarian.hpp"
+
+/*
+If a node already analyzed all of its subtours we should remove it from the tree
+
+Good criteria for order of operation is to choose the node with the lowest
+lower_bound
+(try to insert the lowest LB at the start of the list ???)
+
+How to deal with a changing cost matrix?
+- Track what edge costs were changed and revert them when necessary?
+- Original cost matrix must not be modified
+- A global copy is created and each node modifies it as necessary,
+  after que hungarian is done with the node we revert the changes made
+  to the copy according to the original
+*/
+
+double **cost_matrix;
+double **cost_copy;
 
 /**
  * The upper bound is defined as the cost of a valid TSP solution
@@ -148,16 +167,54 @@ void get_subtours_from_matrix (Node &node, int **assignment_matrix, int dimensio
 	}
 }
 
-/*
-If a node already analyzed all of its subtours we should remove it from the tree
+void calculate_node_solution (Node &node, int dimension) {
+	// all prohibited edges have their cost set to infinity
+	for (int k = 0; k < node.prohibited_edges.size(); ++k) {
+		int i = node.prohibited_edges[i].first;
+		int j = node.prohibited_edges[i].second;
 
-Good criteria for order of operation is to choose the node with the lowest
-lower_bound
-(try to insert the lowest LB at the start of the list ???)
+		cost_copy[i][j] = INFINITY;
+	}
 
-How to deal with a changing cost matrix?
-- Track what edge costs were changed and revert them when necessary?
-*/
+	hungarian_problem_t new_problem;
+	hungarian_init(&new_problem, cost_copy, dimension, dimension, HUNGARIAN_MODE_MINIMIZE_COST);
+
+	// the hungarian is called with the copy of the cost matrix we've changed
+	node.lower_bound = hungarian_solve(&new_problem);
+
+	// setting the subtours of our node
+	get_subtours_from_matrix(node, new_problem.assignment, dimension);
+
+	// setting the chosen subtour
+	find_lowest_subtour(node);
+
+	// reverting changes made to the copy matrix
+	for (int k = 0; k < node.prohibited_edges.size(); ++k) {
+		int i = node.prohibited_edges[i].first;
+		int j = node.prohibited_edges[i].second;
+
+		cost_copy[i][j] = cost_matrix[i][j];
+	}
+}
+
+// will be remade later
+std::vector<Node> create_children (Node &root) {
+	std::vector<int> &subtour = root.subtours[root.chosen_subtour];
+
+	std::vector<Node> children;
+
+	for (int i = 0; i < subtour.size() -1; ++i) {
+		Node child;
+		child.prohibited_edges = root.prohibited_edges;
+
+		// edge between nodes i and i+1
+		std::pair<int, int> curr_edge (subtour[i], subtour[i +1]);
+
+		child.prohibited_edges.push_back(curr_edge);
+	}
+
+	return children;
+}
 
 int main (int argc, char **argv) {
 	Data *data = new Data(argc, argv[1]);
@@ -165,18 +222,19 @@ int main (int argc, char **argv) {
 
 	int dimension = data->getDimension();
 
-	double **cost = new double*[dimension];
+	cost_matrix = new double*[dimension];
+	cost_copy = new double*[dimension];
 	for (int i = 0; i < dimension; i++){
-		cost[i] = new double[dimension];
+		cost_matrix[i] = new double[dimension];
+		cost_copy[i] = new double[dimension];
 		for (int j = 0; j < dimension; j++){
-			cost[i][j] = data->getDistance(i, j);
+			cost_matrix[i][j] = data->getDistance(i, j);
+			cost_copy[i][j] = cost_matrix[i][j];
 		}
 	}
 
-
 	hungarian_problem_t p;
-	hungarian_init(&p, cost, dimension, dimension, HUNGARIAN_MODE_MINIMIZE_COST); // Carregando o problema
-
+	hungarian_init(&p, cost_matrix, dimension, dimension, HUNGARIAN_MODE_MINIMIZE_COST); // Carregando o problema
 
 	double obj_value = hungarian_solve(&p);
 	std::cout << "Obj. value: " << obj_value << std::endl;
@@ -204,8 +262,12 @@ int main (int argc, char **argv) {
 	tree.push_back(root);
 
 	hungarian_free(&p);
-	for (int i = 0; i < dimension; i++) delete [] cost[i];
-	delete [] cost;
+	for (int i = 0; i < dimension; i++) {
+		delete [] cost_matrix[i];
+		delete [] cost_copy[i];
+	}
+	delete [] cost_matrix;
+	delete [] cost_copy;
 	delete data;
 
 	exit(EXIT_SUCCESS);
