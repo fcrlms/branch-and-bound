@@ -11,7 +11,7 @@ struct s_node {
 	/**
 	 * Subtours of this solution
 	 */
-	std::vector<std::vector<int>> subtours;
+	std::vector< std::vector<int> > subtours;
 
 	/**
 	 * This solutions cost
@@ -31,7 +31,7 @@ struct s_node {
 	 * It can be enforce by setting Cij in the distance matrix
 	 * to infinity
 	 */
-	std::vector<std::pair<int, int>> prohibited_edges;
+	std::vector< std::pair<int, int> > prohibited_edges;
 
 	/**
 	 * If this node with its set of prohibited nodes produces
@@ -40,20 +40,6 @@ struct s_node {
 	 */
 	bool cut;
 };
-
-/**
- * Finds the smallest subtour of `root` and assigns it to
- * `root.chosen_subtour`
- *
- * In case of a tie, the subtour which the first node has
- * the lowest index gets chosen
- */
-void find_lowest_subtour (Node &root);
-
-/**
- * Turns assingment matrix into a list of subtours
- */
-void get_subtours_from_matrix (Node &node, int **assignment_matrix, int dimension);
 
 void node_calculate_solution (Node &node, TSPInfo &tsp_info);
 

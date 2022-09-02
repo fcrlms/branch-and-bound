@@ -17,7 +17,7 @@ void print_subtour (std::vector<int> &subtour) {
 }
 
 void print_subtours (Node &node) {
-	for (unsigned long i = 0; i < node.subtours.size(); ++i) {
+	for (size_t i = 0; i < node.subtours.size(); ++i) {
 		print_subtour(node.subtours[i]);
 	}
 }
@@ -26,10 +26,10 @@ void print_node (Node &node) {
 	std::cout << "== Node ==" << std::endl;
 
 	std::cout << "Prohibited edges: ";
-	for (unsigned long i = 0; i < node.prohibited_edges.size(); ++i) {
+	for (size_t i = 0; i < node.prohibited_edges.size(); ++i) {
 		std::cout << "("
 			<< node.prohibited_edges[i].first << ","
-			<< node.prohibited_edges[i].second << ")" << " ,";
+			<< node.prohibited_edges[i].second << ")" << ", ";
 	}
 	std::cout << std::endl;
 
@@ -44,7 +44,14 @@ void print_node (Node &node) {
 	std::cout << "== end node ==" << std::endl;
 }
 
-void find_lowest_subtour (Node &root) {
+/**
+ * Finds the smallest subtour of `root` and assigns it to
+ * `root.chosen_subtour`
+ *
+ * In case of a tie, the subtour which the first node has
+ * the lowest index gets chosen
+ */
+void node_set_chosen_subtour (Node &root) {
 	int total_subtours = root.subtours.size();
 
 	int eligible_subtour = 0;
@@ -73,10 +80,9 @@ void find_lowest_subtour (Node &root) {
 }
 
 /**
- * Uses the assignment matrix to create vectors that represent
- * the subtours from the hungarian solution
+ * Turns assingment matrix into a list of subtours
  */
-void get_subtours_from_matrix (Node &node, int **assignment_matrix, int dimension) {
+void node_get_subtours_assignment (Node &node, int **assignment_matrix, int dimension) {
 	std::vector<bool> was_visited;
 
 	for (int i = 0; i < dimension; ++i) {
@@ -118,7 +124,7 @@ void get_subtours_from_matrix (Node &node, int **assignment_matrix, int dimensio
 
 void node_calculate_solution (Node &node, TSPInfo &tsp_info) {
 	// all prohibited edges have their cost set to infinity
-	for (unsigned long k = 0; k < node.prohibited_edges.size(); ++k) {
+	for (size_t k = 0; k < node.prohibited_edges.size(); ++k) {
 		int i = node.prohibited_edges[k].first -1;
 		int j = node.prohibited_edges[k].second -1;
 
@@ -133,15 +139,15 @@ void node_calculate_solution (Node &node, TSPInfo &tsp_info) {
 	node.lower_bound = hungarian_solve(&new_problem);
 
 	// setting the subtours of our node
-	get_subtours_from_matrix(node, new_problem.assignment, tsp_info.dimension);
+	node_get_subtours_assignment(node, new_problem.assignment, tsp_info.dimension);
 
 	node.cut = node.subtours.size() == 1;
 
 	// setting the chosen subtour
-	find_lowest_subtour(node);
+	node_set_chosen_subtour(node);
 
 	// reverting changes made to the copy matrix
-	for (unsigned long k = 0; k < node.prohibited_edges.size(); ++k) {
+	for (size_t k = 0; k < node.prohibited_edges.size(); ++k) {
 		int i = node.prohibited_edges[k].first -1;
 		int j = node.prohibited_edges[k].second -1;
 
