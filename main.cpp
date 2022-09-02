@@ -9,10 +9,27 @@
 #include "data.hpp"
 #include "hungarian.hpp"
 
+#define BEST_BOUND_SEARCH 1
+#define BREADTH_FIRST_SEARCH 2
+#define DEPTH_FIRST_SEARCH 3
+
 int main (int argc, char **argv) {
 	TSPInfo tsp_info;
 	tsp_init(tsp_info, argc, argv);
 	tsp_info.upper_bound = INFINITE;
+
+	int choice = 0;
+	while (choice < 1 || choice > 3) {
+			std::cout << "Branch and Bound method for TSP" << std::endl;
+
+		std::cout << "Choose a method of tree traversal:" << std::endl
+			<< "1: BestBound" << std::endl
+			<< "2: Breadth first" << std::endl
+			<< "3: Depth first" << std::endl
+			<< "> ";
+
+		std::cin >> choice;
+	}
 
 	auto start = std::chrono::high_resolution_clock::now();
 
@@ -59,15 +76,30 @@ int main (int argc, char **argv) {
 				break;
 			}
 
-			// finding position to insert child
-			std::list<Node>::iterator it;
-			for (it = tree.begin(); it != tree.end(); ++it) {
-				if (child.lower_bound < it->lower_bound) {
-					break;
+			switch (choice) {
+			case BEST_BOUND_SEARCH: {
+				// finding position to insert child
+				std::list<Node>::iterator it;
+				for (it = tree.begin(); it != tree.end(); ++it) {
+					if (child.lower_bound < it->lower_bound) {
+						break;
+					}
 				}
-			}
 
-			tree.insert(it, child);
+				tree.insert(it, child);
+
+				break;
+			}
+			case BREADTH_FIRST_SEARCH: {
+				tree.push_back(child);
+				break;
+			}
+			// this is actually going for the rightmost child
+			// and not the leftmost, easy to change, invert order of childs
+			case DEPTH_FIRST_SEARCH:
+				tree.push_front(child);
+				break;
+			}
 		}
 	}
 
@@ -77,8 +109,9 @@ int main (int argc, char **argv) {
 
 	std::cout << "duration: " << duration.count() / (double) 1000000 << " seconds" << std::endl;
 
-	std::cout << "Solution: " << tsp_info.upper_bound << std::endl;
-	print_node(best);
+	std::cout << "Cost: " << tsp_info.upper_bound << std::endl;
+	std::cout << "Solution: ";
+	print_subtour(best.subtours[0]);
 
 	// freeing matrixes allocated for tsp
 	tsp_free(tsp_info);
