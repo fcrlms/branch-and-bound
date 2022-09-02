@@ -1,10 +1,8 @@
 #include <iostream>
 #include <cstdlib> // exit()
-#include <cmath> // INFINITY
 #include <vector> // vector
 #include <list> // list
 #include <utility> // pair
-#include <iterator>
 #include "tsp.hpp"
 #include "node.hpp"
 #include "data.hpp"

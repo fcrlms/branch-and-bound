@@ -1,7 +1,5 @@
 #include <iostream>
 #include <vector> // vector
-#include <list> // list
-#include <utility> // pair
 #include "data.hpp" // INFINITE
 #include "tsp.hpp"
 #include "node.hpp"

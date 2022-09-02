@@ -2,7 +2,6 @@
 #define NODE_H
 
 #include <vector> // vector
-#include <list> // list
 #include <utility> // pair
 #include "tsp.hpp"
 
