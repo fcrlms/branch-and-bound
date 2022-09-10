@@ -9,13 +9,13 @@ yCoord(NULL){
 
 	if ( qtParam < 2 )  {
 		cout << "Missing parameters\n";
-		cout << " ./exeLaRP [Instance]"  << endl;
+		cout << " ./bnb.out [Instance]"  << endl;
 		exit(EXIT_FAILURE);
 	}
 
 	if ( qtParam > 2 )    {
 		cout << "Too many parameters\n";
-		cout << " ./exeLaRP [Instance]"  << endl;
+		cout << " ./bnb.out [Instance]"  << endl;
 		exit(EXIT_FAILURE);
 	}
 
